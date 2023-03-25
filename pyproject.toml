@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "openai-copilot"
+version = "0.1.0"
+description = "OpenAI Copilot"
+authors = ["Pengfei Ni <feiskyer@gmail.com>"]
+readme = "README.md"
+packages = [{include = "openai_copilot"}]
+homepage = "https://github.com/feiskyer/openai-copilot"
+repository = "https://github.com/feiskyer/openai-copilot"
+keywords = ["copilot", "openai", "chatgpt"]
+
+[tool.poetry.scripts]
+openai-copilot = 'openai_copilot.cli:main'
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+langchain = ">=0.0.120"
+requests = ">=2.28"
+openai = ">=0.27"
+google-api-python-client = ">=2.80.0"
+click = ">=8.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
