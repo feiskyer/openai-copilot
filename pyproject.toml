@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "openai-copilot"
-version = "0.1.0"
+version = "0.2.0"
 description = "OpenAI Copilot"
 authors = ["Pengfei Ni <feiskyer@gmail.com>"]
 readme = "README.md"
@@ -13,7 +13,7 @@ keywords = ["copilot", "openai", "chatgpt"]
 openai-copilot = 'openai_copilot.cli:main'
 
 [tool.poetry.dependencies]
-python = ">=3.10"
+python = ">=3.10,<4"
 langchain = ">=0.0.120"
 requests = ">=2.28"
 openai = ">=0.27"

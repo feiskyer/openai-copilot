@@ -36,7 +36,7 @@ Usage: openai-copilot [OPTIONS]
 Options:
   --version          Show the version and exit.
   --verbose          Enable verbose information of copilot execution steps
-  --model TEXT       OpenAI model to use for copilot execution, default is
+  --model MODEL      OpenAI model to use for copilot execution, default is
                      gpt-3.5-turbo
   --enable-terminal  Enable Copilot to run programs within terminal. Enable
                      with caution since Copilot may execute inappropriate
@@ -44,15 +44,15 @@ Options:
   --help             Show this message and exit.
 ```
 
-Here is a conversation sample:
+Here is a conversation sample (user inputs are after `>>>`)):
 
 ```sh
 # openai-copilot
->>> : What is OpenAI?
-OpenAI is a research organization consisting of the for-profit corporation OpenAI LP and its parent company, the non-profit OpenAI Inc. The company aims to conduct cutting-edge research and development in artificial intelligence (AI) in a way that benefits humanity as a whole. Some notable achievements of OpenAI include the development of advanced language models such as GPT-3 and the creation of AI agents that are capable of playing complex games such as Dota 2.
->>> : What is its latest product?
-OpenAI's latest system is GPT-4, which is OpenAI's most advanced system that produces safer and more useful language models. Additionally, the company also has an API platform that offers their latest models and guides for safety best practices.
->>> :
+>>> What is OpenAI?
+OpenAI is an artificial intelligence research laboratory consisting of the for-profit corporation OpenAI LP and its parent company, the non-profit OpenAI Inc. The company is dedicated to advancing digital intelligence in a way that is safe and beneficial for humanity as a whole. OpenAI was founded in 2015 by a group of technology leaders including Elon Musk, Sam Altman, Greg Brockman, and Ilya Sutskever. Its mission is to develop and promote friendly AI for the betterment of all humans.
+>>> What are the differences between GPT-4 and GPT-3.5?
+According to my search results, one of the main differences between GPT-4 and GPT-3.5 is that while GPT-3.5 is a text-to-text model, GPT-4 is more of a data-to-text model. Additionally, GPT-4 has the advantage of providing more creative replies to prompts. However, it's important to note that GPT-4 is not yet released and there is limited information available about it.
+>>>
 ```
 
 ## Contribution

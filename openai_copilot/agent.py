@@ -8,9 +8,6 @@ from langchain.tools.python.tool import PythonREPLTool
 from langchain.utilities import GoogleSearchAPIWrapper
 
 
-os.environ["LANGCHAIN_HANDLER"] = "langchain"
-
-
 class CopilotLLM:
     '''Wrapper for LLM chain.'''
 
@@ -34,14 +31,15 @@ class CopilotLLM:
 
 def get_chat_chain(verbose=True, model="gpt-3.5-turbo", additional_tools=None,
                    agent="chat-conversational-react-description",
-                   enable_terminal=False, max_iterations=30):
+                   enable_terminal=False, max_iterations=30,
+                   max_tokens=1024):
     '''Initialize the LLM chain with useful tools.'''
     if os.getenv("OPENAI_API_TYPE") == "azure":
         if model == "gpt-3.5-turbo":
             model = "gpt-35-turbo"
-        llm = ChatOpenAI(engine=model, max_tokens=512)
+        llm = ChatOpenAI(engine=model, max_tokens=max_tokens)
     else:
-        llm = ChatOpenAI(model=model, max_tokens=512)
+        llm = ChatOpenAI(model=model, max_tokens=max_tokens)
 
     default_tools = ["human"]
     if enable_terminal:

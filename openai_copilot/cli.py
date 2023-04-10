@@ -16,7 +16,7 @@ def cli(verbose, model, enable_terminal):
     chain = CopilotLLM(
         verbose=verbose, model=model, enable_terminal=enable_terminal)
     while True:
-        instructions = click.prompt(">>> ")
+        instructions = click.prompt(">>>", prompt_suffix=' ')
         result = chain.run(instructions)
         click.echo(click.style(result, fg='green'))
 
