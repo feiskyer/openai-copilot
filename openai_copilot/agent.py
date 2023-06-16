@@ -35,9 +35,9 @@ def get_chat_chain(verbose=True, model="gpt-3.5-turbo", additional_tools=None,
                    max_tokens=1024):
     '''Initialize the LLM chain with useful tools.'''
     if os.getenv("OPENAI_API_TYPE") == "azure":
-        if model == "gpt-3.5-turbo":
-            model = "gpt-35-turbo"
-        llm = ChatOpenAI(engine=model, max_tokens=max_tokens)
+        engine = model.replace(".", "")
+        llm = ChatOpenAI(model=model, max_tokens=max_tokens,
+                         model_kwargs={"engine": engine})
     else:
         llm = ChatOpenAI(model=model, max_tokens=max_tokens)
 
