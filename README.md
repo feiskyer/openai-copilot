@@ -2,10 +2,6 @@
 
 Your life Copilot powered by OpenAI (CLI interface for OpenAI with searching).
 
-**Status: Experimental**
-
-**Caution: Copilot may generate and execute inappropriate operations, do not use in production environment when enabling terminal execution!**
-
 Features:
 
 * Web access and Google search support without leaving the terminal.
@@ -53,6 +49,23 @@ OpenAI is an artificial intelligence research laboratory consisting of the for-p
 >>> What are the differences between GPT-4 and GPT-3.5?
 According to my search results, one of the main differences between GPT-4 and GPT-3.5 is that while GPT-3.5 is a text-to-text model, GPT-4 is more of a data-to-text model. Additionally, GPT-4 has the advantage of providing more creative replies to prompts. However, it's important to note that GPT-4 is not yet released and there is limited information available about it.
 >>>
+```
+
+## Run in Kubernetes
+
+```sh
+# Run with gpt-4 (default model)
+kubectl run -it --rm copilot \
+  --env="OPENAI_API_KEY=$OPENAI_API_KEY" \
+  --restart=Never \
+  --image=ghcr.io/feiskyer/openai-copilot
+
+# Run with a different model and enable verbose outputs
+kubectl run -it --rm copilot \
+  --env="OPENAI_API_KEY=$OPENAI_API_KEY" \
+  --restart=Never \
+  --image=ghcr.io/feiskyer/openai-copilot \
+  -- --model=gpt-3.5-turbo --verbose
 ```
 
 ## Contribution
