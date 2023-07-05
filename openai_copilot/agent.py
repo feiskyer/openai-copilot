@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
+
+from langchain.agents import AgentType, Tool, initialize_agent, load_tools
 from langchain.chat_models import ChatOpenAI
-from langchain.agents import Tool, load_tools
-from langchain.agents import AgentType
 from langchain.memory import ConversationSummaryBufferMemory
-from langchain.agents import initialize_agent
+from langchain.tools.python.tool import PythonREPLTool
 from langchain.utilities import GoogleSearchAPIWrapper
 from openai_copilot.output import ChatOutputParser
 
@@ -42,10 +42,18 @@ def get_chat_chain(verbose=True, model="gpt-4", additional_tools=None,
     else:
         llm = ChatOpenAI(model=model, max_tokens=max_tokens)
 
-    default_tools = ["human", "requests_get", "python_repl"]
+    default_tools = ["human", "requests_get"]
     if enable_terminal:
         default_tools += ["terminal"]
     tools = load_tools(default_tools, llm)
+
+    tools += [
+        Tool(
+            name="python",
+            func=PythonREPLTool().run,
+            description="Useful for executing Python code with Kubernetes Python SDK client. Results should be print out by calling `print(...)`. Input: Python code. Output: the result from the Python code's print()."
+        )
+    ]
 
     if os.getenv("GOOGLE_API_KEY") and os.getenv("GOOGLE_CSE_ID"):
         tools += [

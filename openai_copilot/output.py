@@ -19,7 +19,7 @@ class ChatOutputParser(AgentOutputParser):
             if action.startswith('python\n'):
                 # Ensure the Python code snippets are handled by the Python action.
                 response = {
-                    "action": "Python_REPL",
+                    "action": "python",
                     "action_input": action.split('python\n')[1],
                 }
             elif action.startswith('sh\n') or action.startswith('bash\n'):
