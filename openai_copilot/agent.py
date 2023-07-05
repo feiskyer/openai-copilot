@@ -2,16 +2,17 @@
 import os
 from langchain.chat_models import ChatOpenAI
 from langchain.agents import Tool, load_tools
-from langchain.memory import ConversationBufferMemory
+from langchain.agents import AgentType
+from langchain.memory import ConversationSummaryBufferMemory
 from langchain.agents import initialize_agent
-from langchain.tools.python.tool import PythonREPLTool
 from langchain.utilities import GoogleSearchAPIWrapper
+from openai_copilot.output import ChatOutputParser
 
 
 class CopilotLLM:
     '''Wrapper for LLM chain.'''
 
-    def __init__(self, verbose=True, model="gpt-3.5-turbo", additional_tools=None, enable_terminal=False):
+    def __init__(self, verbose=True, model="gpt-4", additional_tools=None, enable_terminal=False):
         '''Initialize the LLM chain.'''
         self.chain = get_chat_chain(verbose, model, additional_tools=additional_tools,
                                     enable_terminal=enable_terminal)
@@ -29,31 +30,22 @@ class CopilotLLM:
                 raise e
 
 
-def get_chat_chain(verbose=True, model="gpt-3.5-turbo", additional_tools=None,
-                   agent="chat-conversational-react-description",
+def get_chat_chain(verbose=True, model="gpt-4", additional_tools=None,
+                   agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
                    enable_terminal=False, max_iterations=30,
-                   max_tokens=1024):
+                   max_tokens=None):
     '''Initialize the LLM chain with useful tools.'''
-    if os.getenv("OPENAI_API_TYPE") == "azure":
+    if os.getenv("OPENAI_API_TYPE") == "azure" or (os.getenv("OPENAI_API_BASE") is not None and "azure" in os.getenv("OPENAI_API_BASE")):
         engine = model.replace(".", "")
         llm = ChatOpenAI(model=model, max_tokens=max_tokens,
                          model_kwargs={"engine": engine})
     else:
         llm = ChatOpenAI(model=model, max_tokens=max_tokens)
 
-    default_tools = ["human"]
+    default_tools = ["human", "requests_get", "python_repl"]
     if enable_terminal:
         default_tools += ["terminal"]
     tools = load_tools(default_tools, llm)
-
-    if os.getenv("OPENAI_COPILOT_ENABLE_PYTHON"):
-        tools += [
-            Tool(
-                name="Python",
-                func=PythonREPLTool().run,
-                description="helps to run Python codes"
-            )
-        ]
 
     if os.getenv("GOOGLE_API_KEY") and os.getenv("GOOGLE_CSE_ID"):
         tools += [
@@ -71,9 +63,24 @@ def get_chat_chain(verbose=True, model="gpt-3.5-turbo", additional_tools=None,
     if additional_tools is not None:
         tools += additional_tools
 
-    memory = ConversationBufferMemory(
-        memory_key="chat_history", return_messages=True)
+    memory = ConversationSummaryBufferMemory(
+        llm=llm,
+        memory_key="chat_history",
+        return_messages=True)
     chain = initialize_agent(
         tools, llm, agent=agent, memory=memory,
-        verbose=verbose, max_iterations=max_iterations)
+        agent_kwargs={"output_parser": ChatOutputParser()},
+        verbose=verbose, max_iterations=max_iterations,
+        handle_parsing_error=handle_parsing_error)
     return chain
+
+
+def handle_parsing_error(error) -> str:
+    '''Helper function to handle parsing errors from LLM.'''
+    # Workaround for issue https://github.com/hwchase17/langchain/issues/1358.
+    response = str(error).split("Could not parse LLM output:")[1].strip()
+    if not response.startswith('```'):
+        response = response.removeprefix('`')
+    if not response.endswith('```'):
+        response = response.removesuffix('`')
+    return response
