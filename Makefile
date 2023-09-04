@@ -24,4 +24,5 @@ install-dev:
 
 .PHONY: install-poetry
 install-poetry:
-	curl -sSL https://install.python-poetry.org | python3 -
+	pipx install poetry
+
