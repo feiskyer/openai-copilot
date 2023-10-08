@@ -1,3 +1,13 @@
+# CHANGLOG
+
+## v0.2.5
+
+- Bump dependencies to fix security issues
+
+## v0.2.4
+
+- Bump dependencies to fix security issues
+
 ## v0.2.3
 
 - Default the model to gpt-4

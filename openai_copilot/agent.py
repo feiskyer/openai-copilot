@@ -33,7 +33,7 @@ class CopilotLLM:
 def get_chat_chain(verbose=True, model="gpt-4", additional_tools=None,
                    agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
                    enable_terminal=False, max_iterations=30,
-                   max_tokens=None):
+                   max_tokens=4000):
     '''Initialize the LLM chain with useful tools.'''
     if os.getenv("OPENAI_API_TYPE") == "azure" or (os.getenv("OPENAI_API_BASE") is not None and "azure" in os.getenv("OPENAI_API_BASE")):
         engine = model.replace(".", "")
