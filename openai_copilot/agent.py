@@ -4,7 +4,7 @@ import os
 from langchain.agents import AgentType, Tool, initialize_agent, load_tools
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationSummaryBufferMemory
-from langchain.tools.python.tool import PythonREPLTool
+from langchain_experimental.tools import PythonREPLTool
 from langchain.utilities import GoogleSearchAPIWrapper
 from openai_copilot.output import ChatOutputParser
 
