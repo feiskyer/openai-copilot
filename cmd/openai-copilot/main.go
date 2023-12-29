@@ -30,6 +30,8 @@ var (
 )
 
 func chat() {
+	var err error
+	var response string
 	messages := []openai.ChatCompletionMessage{
 		{
 			Role:    openai.ChatMessageRoleSystem,
@@ -37,8 +39,7 @@ func chat() {
 		},
 	}
 
-	var response string
-	var err error
+	// Non-interactive mode
 	if prompt != "" {
 		messages = append(messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleUser,
@@ -50,10 +51,11 @@ func chat() {
 			return
 		}
 
-		fmt.Printf("AI: %s\n\n", response)
+		fmt.Printf("%s\n\n", response)
 		return
 	}
 
+	// Interactive mode
 	color.New(color.FgYellow).Printf("You: ")
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
@@ -68,7 +70,8 @@ func chat() {
 			continue
 		}
 
-		fmt.Printf("AI: %s\n\n", response)
+		color.New(color.FgYellow).Printf("AI: ")
+		fmt.Printf("%s\n\n", response)
 		color.New(color.FgYellow).Printf("You: ")
 	}
 }

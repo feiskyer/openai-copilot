@@ -13,7 +13,7 @@ Features:
 Install the copilot with the commands below:
 
 ```sh
-pip install openai-copilot
+go install github.com/feiskyer/openai-copilot/cmd/openai-copilot
 ```
 
 ## Setup
@@ -29,32 +29,47 @@ Usage:
   openai-copilot [flags]
 
 Flags:
+  -c, --count-tokens     Print tokens count
   -h, --help             help for openai-copilot
   -t, --max-tokens int   Max tokens for the GPT model (default 1024)
   -m, --model string     OpenAI model to use (default "gpt-4")
-  -p, --prompt string    Prompts sent to GPT model
+  -p, --prompt string    Prompts sent to GPT model for non-interactive mode. If not set, interactive mode is used
+  -v, --verbose          Enable verbose output (default true)
+```
+
+### Interactive mode
+
+Here is a conversation sample (user inputs are after `You:`)):
+
+```sh
+$ openai-copilot --verbose=false
+You: What is OpenAI?
+AI: OpenAI is an artificial intelligence research lab, which includes a for-profit arm, OpenAI LP, and its parent company, the non-profit OpenAI Inc. Their mission is to ensure that artificial general intelligence (AGI) benefits all of humanity. They aim to build safe and beneficial AGI, and are also committed to aiding others in achieving this outcome.
+
+You:
 ```
 
 ### Non-interactive mode
 
 ```sh
 $ openai-copilot -p 'What is OpenAI?'
-Thought: OpenAI is an artificial intelligence research lab made up of both for-profit and non-profit arms. I can provide a more detailed explanation.
+Initial response from LLM:
+{
+ "question": "What is OpenAI?",
+ "thought": "OpenAI is a well-known organization in the field of artificial intelligence. I should provide a brief description of it.",
+ "action": {
+  "name": "search",
+  "input": "OpenAI"
+ },
+ "observation": "OpenAI is an artificial intelligence research lab consisting of the for-profit arm OpenAI LP and its parent company, the non-profit OpenAI Inc. OpenAI's mission is to ensure that artificial general intelligence (AGI) benefits all of humanity. They aim to build safe and beneficial AGI directly, but are also committed to aiding others in achieving this outcome.",
+ "final_answer": "OpenAI is an artificial intelligence research lab made up of a for-profit arm, OpenAI LP, and its parent company, the non-profit OpenAI Inc. Their mission is to ensure that artificial general intelligence (AGI) benefits all of humanity. They aim to directly build safe and beneficial AGI, but are also committed to aiding others in achieving this outcome."
+}
 
-OpenAI is an artificial intelligence research lab made up of the for-profit OpenAI LP and its parent company, the non-profit OpenAI Inc. Their mission is to ensure that artificial general intelligence (AGI) benefits all of humanity. They aim to directly build safe and beneficial AGI, but are also committed to aiding others in achieving this outcome.
-```
+Thought: OpenAI is a well-known organization in the field of artificial intelligence. I should provide a brief description of it.
 
-### Interactive mode
+Final answer: OpenAI is an artificial intelligence research lab made up of a for-profit arm, OpenAI LP, and its parent company, the non-profit OpenAI Inc. Their mission is to ensure that artificial general intelligence (AGI) benefits all of humanity. They aim to directly build safe and beneficial AGI, but are also committed to aiding others in achieving this outcome.
 
-Here is a conversation sample (user inputs are after `>>>`)):
-
-```sh
-# openai-copilot
->>> What is OpenAI?
-OpenAI is an artificial intelligence research laboratory consisting of the for-profit corporation OpenAI LP and its parent company, the non-profit OpenAI Inc. The company is dedicated to advancing digital intelligence in a way that is safe and beneficial for humanity as a whole. OpenAI was founded in 2015 by a group of technology leaders including Elon Musk, Sam Altman, Greg Brockman, and Ilya Sutskever. Its mission is to develop and promote friendly AI for the betterment of all humans.
->>> What are the differences between GPT-4 and GPT-3.5?
-According to my search results, one of the main differences between GPT-4 and GPT-3.5 is that while GPT-3.5 is a text-to-text model, GPT-4 is more of a data-to-text model. Additionally, GPT-4 has the advantage of providing more creative replies to prompts. However, it's important to note that GPT-4 is not yet released and there is limited information available about it.
->>>
+AI: OpenAI is an artificial intelligence research lab made up of a for-profit arm, OpenAI LP, and its parent company, the non-profit OpenAI Inc. Their mission is to ensure that artificial general intelligence (AGI) benefits all of humanity. They aim to directly build safe and beneficial AGI, but are also committed to aiding others in achieving this outcome.
 ```
 
 ## Python Version
