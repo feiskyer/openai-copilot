@@ -1,5 +1,7 @@
 # OpenAI Copilot
 
+> Please note that the Python version of this project (version number < v0.5.0) has been deprecated. Please switch to Go version in [master](https://github.com/feiskyer/openai-copilot) branch for latest updates.
+
 Your life Copilot powered by OpenAI (CLI interface for OpenAI with searching).
 
 Features:
