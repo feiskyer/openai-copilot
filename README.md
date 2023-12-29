@@ -10,7 +10,7 @@ Features:
 
 ## Install
 
-Install the copilot with pip command below:
+Install the copilot with the commands below:
 
 ```sh
 pip install openai-copilot
@@ -19,26 +19,32 @@ pip install openai-copilot
 ## Setup
 
 * OpenAI API key should be set to `OPENAI_API_KEY` environment variable to enable the ChatGPT feature.
-  * `OPENAI_API_BASE` should be set as well for Azure OpenAI service.
+  * `OPENAI_API_BASE` should be set as well for Azure OpenAI service and other self-hosted OpenAI services.
 * Google Search API key and CSE ID should be set to `GOOGLE_API_KEY` and `GOOGLE_CSE_ID`.
 
 ## How to use
 
 ```sh
-Usage: openai-copilot [OPTIONS]
+Usage:
+  openai-copilot [flags]
 
-  Your life Copilot powered by OpenAI
-
-Options:
-  --version          Show the version and exit.
-  --verbose          Enable verbose information of copilot execution steps
-  --model MODEL      OpenAI model to use for copilot execution, default is
-                     gpt-3.5-turbo
-  --enable-terminal  Enable Copilot to run programs within terminal. Enable
-                     with caution since Copilot may execute inappropriate
-                     commands
-  --help             Show this message and exit.
+Flags:
+  -h, --help             help for openai-copilot
+  -t, --max-tokens int   Max tokens for the GPT model (default 1024)
+  -m, --model string     OpenAI model to use (default "gpt-4")
+  -p, --prompt string    Prompts sent to GPT model
 ```
+
+### Non-interactive mode
+
+```sh
+$ openai-copilot -p 'What is OpenAI?'
+Thought: OpenAI is an artificial intelligence research lab made up of both for-profit and non-profit arms. I can provide a more detailed explanation.
+
+OpenAI is an artificial intelligence research lab made up of the for-profit OpenAI LP and its parent company, the non-profit OpenAI Inc. Their mission is to ensure that artificial general intelligence (AGI) benefits all of humanity. They aim to directly build safe and beneficial AGI, but are also committed to aiding others in achieving this outcome.
+```
+
+### Interactive mode
 
 Here is a conversation sample (user inputs are after `>>>`)):
 
@@ -51,22 +57,9 @@ According to my search results, one of the main differences between GPT-4 and GP
 >>>
 ```
 
-## Run in Kubernetes
+## Python Version
 
-```sh
-# Run with gpt-4 (default model)
-kubectl run -it --rm copilot \
-  --env="OPENAI_API_KEY=$OPENAI_API_KEY" \
-  --restart=Never \
-  --image=ghcr.io/feiskyer/openai-copilot
-
-# Run with a different model and enable verbose outputs
-kubectl run -it --rm copilot \
-  --env="OPENAI_API_KEY=$OPENAI_API_KEY" \
-  --restart=Never \
-  --image=ghcr.io/feiskyer/openai-copilot \
-  -- --model=gpt-3.5-turbo --verbose
-```
+Please note that the original project (version number < v0.5.0) is written in Python 3 and the codes are in [main](https://github.com/feiskyer/openai-copilot/tree/main) branch.
 
 ## Contribution
 
