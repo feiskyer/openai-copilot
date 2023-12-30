@@ -89,11 +89,15 @@ func Assistant(model string, prompts []openai.ChatCompletionMessage, maxTokens i
 			}
 
 			observation := strings.TrimSpace(ret)
-			toolPrompt.Observation = observation
 			if verbose {
 				color.Cyan("Observation: %s\n\n", observation)
 			}
 
+			// Constrict the prompt to the max tokens allowed by the model.
+			// This is required because the tool may have generated a long output.
+			observation = llms.ConstrictPrompt(observation, model, maxTokens)
+
+			toolPrompt.Observation = observation
 			assistantMessage, _ := json.Marshal(toolPrompt)
 			chatHistory = append(chatHistory, openai.ChatCompletionMessage{
 				Role:    openai.ChatMessageRoleAssistant,
@@ -113,6 +117,10 @@ func Assistant(model string, prompts []openai.ChatCompletionMessage, maxTokens i
 				Role:    openai.ChatMessageRoleAssistant,
 				Content: string(resp.Choices[0].Message.Content),
 			})
+
+			// Constrict the chat history to the max tokens allowed by the model.
+			// This is required because the chat history may have grown too large.
+			chatHistory = llms.ConstrictMessages(chatHistory, model, maxTokens)
 
 			if err = json.Unmarshal([]byte(resp.Choices[0].Message.Content), &toolPrompt); err != nil {
 				if verbose {
