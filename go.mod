@@ -7,7 +7,7 @@ require (
 	github.com/pkoukk/tiktoken-go v0.1.6
 	github.com/sashabaranov/go-openai v1.19.4
 	github.com/spf13/cobra v1.8.0
-	google.golang.org/api v0.166.0
+	google.golang.org/api v0.167.0
 )
 
 require (
