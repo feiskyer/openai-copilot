@@ -16,6 +16,7 @@ var (
 	// global flags
 	model, prompt string
 	maxTokens     int
+	maxIterations int
 	countTokens   bool
 	verbose       bool
 
@@ -45,7 +46,7 @@ func chat() {
 			Role:    openai.ChatMessageRoleUser,
 			Content: prompt,
 		})
-		response, _, err = assistants.Assistant(model, messages, maxTokens, countTokens, verbose)
+		response, _, err = assistants.Assistant(model, messages, maxTokens, countTokens, verbose, maxIterations)
 		if err != nil {
 			color.Red(err.Error())
 			return
@@ -64,7 +65,7 @@ func chat() {
 			Role:    openai.ChatMessageRoleUser,
 			Content: message,
 		})
-		response, messages, err = assistants.Assistant(model, messages, maxTokens, countTokens, verbose)
+		response, messages, err = assistants.Assistant(model, messages, maxTokens, countTokens, verbose, maxIterations)
 		if err != nil {
 			color.Red(err.Error())
 			continue
@@ -81,6 +82,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&model, "model", "m", "gpt-4", "OpenAI model to use")
 	rootCmd.PersistentFlags().StringVarP(&prompt, "prompt", "p", "", "Prompts sent to GPT model for non-interactive mode. If not set, interactive mode is used")
 	rootCmd.PersistentFlags().IntVarP(&maxTokens, "max-tokens", "t", 1024, "Max tokens for the GPT model")
+	rootCmd.PersistentFlags().IntVarP(&maxIterations, "max-iterations", "i", 3, "Max iterations for the conversations")
 	rootCmd.PersistentFlags().BoolVarP(&countTokens, "count-tokens", "c", false, "Print tokens count")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", true, "Enable verbose output")
 }

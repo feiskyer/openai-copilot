@@ -3,6 +3,7 @@ package llms
 import (
 	"fmt"
 	"log"
+	"math"
 	"strings"
 
 	"github.com/pkoukk/tiktoken-go"
@@ -101,27 +102,26 @@ func ConstrictMessages(messages []openai.ChatCompletionMessage, model string, ma
 			return messages
 		}
 
-		// Remove the oldest message
-		messages = messages[1:]
+		// Remove the oldest message (keep the first one as it is usually the system prompt)
+		messages = append(messages[:1], messages[2:]...)
 	}
 }
 
 // ConstrictPrompt returns the prompt that fits within the token limit.
-func ConstrictPrompt(prompt string, model string, maxTokens int) string {
-	tokenLimits := GetTokenLimits(model)
-	if maxTokens >= tokenLimits {
-		return ""
-	}
-
+func ConstrictPrompt(prompt string, model string, tokenLimits int) string {
 	for {
 		numTokens := NumTokensFromMessages([]openai.ChatCompletionMessage{{Content: prompt}}, model)
-		if numTokens+maxTokens < tokenLimits {
+		if numTokens < tokenLimits {
 			return prompt
 		}
 
 		// Remove the first thrid percent lines
 		lines := strings.Split(prompt, "\n")
-		lines = lines[len(lines)/3:]
+		lines = lines[int64(math.Ceil(float64(len(lines))/3)):]
 		prompt = strings.Join(lines, "\n")
+
+		if strings.TrimSpace(prompt) == "" {
+			return ""
+		}
 	}
 }

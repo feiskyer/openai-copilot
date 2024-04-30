@@ -13,7 +13,7 @@ Features:
 Install the copilot with the commands below:
 
 ```sh
-go install github.com/feiskyer/openai-copilot/cmd/openai-copilot
+go install github.com/feiskyer/openai-copilot/cmd/openai-copilot@latest
 ```
 
 ## Setup
