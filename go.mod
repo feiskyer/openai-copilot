@@ -8,7 +8,7 @@ require (
 	github.com/fatih/color v1.16.0
 	github.com/pkoukk/tiktoken-go v0.1.6
 	github.com/sashabaranov/go-openai v1.23.0
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	google.golang.org/api v0.177.0
 )
 
