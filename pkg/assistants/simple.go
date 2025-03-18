@@ -35,7 +35,7 @@ func Assistant(model string, prompts []openai.ChatCompletionMessage, maxTokens i
 	}()
 
 	if verbose {
-		color.Blue("Iteration 1): chatting with LLM\n")
+		color.Blue("Chatting with LLM\n")
 	}
 
 	resp, err := client.Chat(model, maxTokens, chatHistory)
@@ -43,21 +43,17 @@ func Assistant(model string, prompts []openai.ChatCompletionMessage, maxTokens i
 		return "", chatHistory, fmt.Errorf("chat completion error: %v", err)
 	}
 
+	response, err := json.Marshal(resp)
+	if err != nil {
+		return "", chatHistory, fmt.Errorf("failed to marshal response: %v", err)
+	}
 	chatHistory = append(chatHistory, openai.ChatCompletionMessage{
 		Role:    openai.ChatMessageRoleAssistant,
-		Content: string(resp),
+		Content: string(response),
 	})
 
 	if verbose {
 		color.Cyan("Initial response from LLM:\n%s\n\n", resp)
-	}
-
-	var toolPrompt tools.ToolPrompt
-	if err = json.Unmarshal([]byte(resp), &toolPrompt); err != nil {
-		if verbose {
-			color.Cyan("Unable to parse tool from prompt, assuming got final answer: %s\n\n", resp)
-		}
-		return resp, chatHistory, nil
 	}
 
 	iterations := 0
@@ -68,30 +64,38 @@ func Assistant(model string, prompts []openai.ChatCompletionMessage, maxTokens i
 		iterations++
 
 		if verbose {
-			color.Cyan("Thought: %s\n\n", toolPrompt.Thought)
+			color.Cyan("Thought: %s\n\n", resp.Thought)
 		}
 
 		if iterations > maxIterations {
 			color.Red("Max iterations reached")
-			return toolPrompt.FinalAnswer, chatHistory, nil
+			return resp.FinalAnswer, chatHistory, nil
 		}
 
-		if toolPrompt.FinalAnswer != "" {
+		if resp.FinalAnswer != "" {
 			if verbose {
-				color.Cyan("Final answer: %s\n\n", toolPrompt.FinalAnswer)
+				color.Cyan("Final answer: %s\n\n", resp.FinalAnswer)
 			}
-			return toolPrompt.FinalAnswer, chatHistory, nil
+			return resp.FinalAnswer, chatHistory, nil
 		}
 
-		if toolPrompt.Action.Name != "" {
-			if verbose {
-				color.Blue("Iteration %d): executing tool %s\n", iterations, toolPrompt.Action.Name)
-				color.Cyan("Invoking %s tool with inputs: \n============\n%s\n============\n\n", toolPrompt.Action.Name, toolPrompt.Action.Input)
+		if resp.Action.Name != "" {
+			input, ok := resp.Action.Input.(string)
+			if !ok {
+				inputBytes, err := json.Marshal(resp.Action.Input)
+				if err != nil {
+					return "", chatHistory, fmt.Errorf("failed to marshal tool input: %v", err)
+				}
+				input = string(inputBytes)
 			}
-			ret, err := tools.CopilotTools[toolPrompt.Action.Name](toolPrompt.Action.Input)
+			if verbose {
+				color.Blue("Executing tool %s\n", resp.Action.Name)
+				color.Cyan("Invoking %s tool with params: \n============\n%s\n============\n\n", resp.Action.Name, input)
+			}
+			ret, err := tools.CopilotTools[resp.Action.Name].ToolFunc(input)
 			observation := strings.TrimSpace(ret)
 			if err != nil {
-				observation = fmt.Sprintf("Tool %s failed with error %s. Considering refine the inputs for the tool.", toolPrompt.Action.Name, ret)
+				observation = fmt.Sprintf("Tool %s failed with ret %s and error %s. Considering refine the inputs for the tool.", resp.Action.Name, ret, err)
 			}
 			if verbose {
 				color.Cyan("Observation: %s\n\n", observation)
@@ -99,52 +103,37 @@ func Assistant(model string, prompts []openai.ChatCompletionMessage, maxTokens i
 
 			// Constrict the prompt to the max tokens allowed by the model.
 			// This is required because the tool may have generated a long output.
-			observation = llms.ConstrictPrompt(observation, model, 1024)
-			toolPrompt.Observation = observation
-			assistantMessage, _ := json.Marshal(toolPrompt)
+			observation = llms.ConstrictPrompt(observation, model)
+			resp.Observation = observation
+			assistantMessage, _ := json.Marshal(resp)
 			chatHistory = append(chatHistory, openai.ChatCompletionMessage{
 				Role:    openai.ChatMessageRoleUser,
 				Content: string(assistantMessage),
 			})
 			// Constrict the chat history to the max tokens allowed by the model.
 			// This is required because the chat history may have grown too large.
-			chatHistory = llms.ConstrictMessages(chatHistory, model, maxTokens)
+			chatHistory = llms.ConstrictMessages(chatHistory, model)
 
 			// Start next iteration of LLM chat.
 			if verbose {
-				color.Blue("Iteration %d): chatting with LLM\n", iterations)
+				color.Blue("Chatting with LLM\n")
 			}
 
-			resp, err := client.Chat(model, maxTokens, chatHistory)
+			resp, err = client.Chat(model, maxTokens, chatHistory)
 			if err != nil {
 				return "", chatHistory, fmt.Errorf("chat completion error: %v", err)
 			}
 
+			response, err := json.Marshal(resp)
+			if err != nil {
+				return "", chatHistory, fmt.Errorf("failed to marshal response: %v", err)
+			}
 			chatHistory = append(chatHistory, openai.ChatCompletionMessage{
 				Role:    openai.ChatMessageRoleAssistant,
-				Content: string(resp),
+				Content: string(response),
 			})
 			if verbose {
 				color.Cyan("Intermediate response from LLM: %s\n\n", resp)
-			}
-
-			// extract the tool prompt from the LLM response.
-			if err = json.Unmarshal([]byte(resp), &toolPrompt); err != nil {
-				if verbose {
-					color.Cyan("Unable to parse tools from LLM, summarizing the final answer.\n\n")
-				}
-
-				chatHistory = append(chatHistory, openai.ChatCompletionMessage{
-					Role:    openai.ChatMessageRoleUser,
-					Content: "Summarize all the chat history and respond to original question with final answer",
-				})
-
-				resp, err = client.Chat(model, maxTokens, chatHistory)
-				if err != nil {
-					return "", chatHistory, fmt.Errorf("chat completion error: %v", err)
-				}
-
-				return resp, chatHistory, nil
 			}
 		}
 	}

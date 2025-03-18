@@ -7,6 +7,7 @@ import (
 
 	customsearch "google.golang.org/api/customsearch/v1"
 	option "google.golang.org/api/option"
+	_ "google.golang.org/genproto/protobuf/ptype"
 )
 
 // GoogleSearch returns the results of a Google search for the given query.
