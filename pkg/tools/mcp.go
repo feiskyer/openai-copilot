@@ -21,10 +21,10 @@ type MCPConfig struct {
 
 // MCPServer is the configuration for a single MCP server.
 type MCPServer struct {
-	Command string   `json:"command"`
-	URL     string   `json:"url"`
-	Args    []string `json:"args"`
-	Env     []string `json:"env"`
+	Command string            `json:"command"`
+	URL     string            `json:"url"`
+	Args    []string          `json:"args"`
+	Env     map[string]string `json:"env"`
 }
 
 // MCPTool is a tool that uses the MCP protocol.
@@ -74,10 +74,14 @@ func GetMCPTools(configFile string, verbose bool) (map[string]types.Tool, map[st
 		}
 
 		var c client.MCPClient
+		envs := make([]string, 0)
+		for k, v := range server.Env {
+			envs = append(envs, fmt.Sprintf("%s=%s", k, v))
+		}
 		if server.Command != "" {
 			c, err = client.NewStdioMCPClient(
 				server.Command,
-				server.Env,
+				envs,
 				server.Args...,
 			)
 			if err != nil {

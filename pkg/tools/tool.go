@@ -3,7 +3,9 @@ package tools
 import (
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/fatih/color"
 	"github.com/feiskyer/openai-copilot/pkg/types"
 	"github.com/mark3labs/mcp-go/client"
 )
@@ -97,6 +99,14 @@ func InitTools(mcpConfigFile string, verbose bool) (map[string]client.MCPClient,
 		mcpTools, mcpClients, err := GetMCPTools(mcpConfigFile, verbose)
 		if err != nil {
 			return nil, err
+		}
+
+		if verbose {
+			tools := ""
+			for toolName := range mcpTools {
+				tools += fmt.Sprintf("%s, ", toolName)
+			}
+			color.Green("Enabled MCP tools: %s", strings.TrimRight(tools, ", "))
 		}
 
 		for toolName, tool := range mcpTools {
