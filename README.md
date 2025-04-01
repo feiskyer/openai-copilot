@@ -4,7 +4,7 @@ Your life Copilot powered by LLM models (CLI interface for LLM models with MCP t
 
 Features:
 
-* OpenAI, Azure OpenAI, and OpenAI-compatible services support.
+* OpenAI, Azure OpenAI, Anthropic Claude, Google Gemini and OpenAI-compatible services support.
 * Web access and Google search support without leaving the terminal.
 * Automatically execute any steps predicted from prompt instructions.
 * Model Context Protocol (MCP) support for bridging external tools.
@@ -25,16 +25,65 @@ go install github.com/feiskyer/openai-copilot/cmd/openai-copilot@latest
 | OPENAI_API_BASE | OpenAI Base URL. Optional. |
 | AZURE_OPENAI_API_KEY | Azure OpenAI API key. Required for Azure OpenAI service. |
 | AZURE_OPENAI_API_BASE | Azure OpenAI Base URL. Required for Azure OpenAI service. |
-| GOOGLE_API_KEY | Google API key. Required for Google search. |
-| GOOGLE_CSE_ID | Google Custom Search Engine ID. Required for Google search. |
+| AZURE_OPENAI_API_VERSION | Azure OpenAI API version. Default is 2025-03-01-preview |
+
+### LLM Integrations
+
+<details>
+<summary>OpenAI</summary>
+
+Set the OpenAI [API key](https://platform.openai.com/account/api-keys) as the `OPENAI_API_KEY` environment variable to enable OpenAI functionality.
+</details>
+
+<details>
+<summary>Anthropic Claude</summary>
+
+Anthropic Claude provides an [OpenAI compatible API](https://docs.anthropic.com/en/api/openai-sdk), so it could be used by using following config:
+
+- `OPENAI_API_KEY=<your-anthropic-key>`
+- `OPENAI_API_BASE='https://api.anthropic.com/v1/'`
+
+</details>
+
+<details>
+
+<summary>Azure OpenAI</summary>
+
+For [Azure OpenAI service](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/quickstart?tabs=command-line&pivots=rest-api#retrieve-key-and-endpoint), set the following environment variables:
+
+- `AZURE_OPENAI_API_KEY=<your-api-key>`
+- `AZURE_OPENAI_API_BASE=https://<replace-this>.openai.azure.com/`
+- `AZURE_OPENAI_API_VERSION=2025-03-01-preview`
+
+</details>
+
+<details>
+<summary>Google Gemini</summary>
+
+Google Gemini provides an OpenAI compatible API, so it could be used by using following config:
+
+- `OPENAI_API_KEY=<your-google-ai-key>`
+- `OPENAI_API_BASE='https://generativelanguage.googleapis.com/v1beta/openai/'`
+
+</details>
+
+<details>
+<summary>Ollama or other OpenAI compatible LLMs</summary>
+
+For Ollama or other OpenAI compatible LLMs, set the following environment variables:
+
+- `OPENAI_API_KEY=<your-api-key>`
+- `OPENAI_API_BASE='http://localhost:11434/v1'` (or your own base URL)
+
+</details>
 
 ## How to use
 
 Setup the OpenAI or AzureOpenAI environment and then run the following openai-copilot command:
 
 ```sh
-# You can optionally config a different model and 
-# enable MCP integration (MCP format is same as Claude app)
+# You can optionally config a different model and
+# enable MCP integration (MCP format is same as Claude Desktop)
 openai-copilot [-m gpt-4o] [-c <mcp-config-file>]
 ```
 
@@ -55,6 +104,13 @@ Flags:
   -m, --model string         OpenAI model to use (default "gpt-4o")
   -p, --prompt string        Prompts sent to GPT model for non-interactive mode. If not set, interactive mode is used
   -v, --verbose              Enable verbose output (default true)
+```
+
+### Use MCP
+
+```sh
+# Use MCP servers configured from Claude Desktop
+openai-copilot -c ~/Library/Application\ Support/Claude/claude_desktop_config.json
 ```
 
 ### Interactive mode

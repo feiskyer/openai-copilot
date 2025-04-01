@@ -17,7 +17,7 @@ import (
 
 const (
 	// VERSION is the version of OpenAI Copilot.
-	VERSION = "v0.6.1"
+	VERSION = "v0.6.2"
 )
 
 var (
