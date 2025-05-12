@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/feiskyer/openai-copilot/pkg/types"
 	"github.com/mark3labs/mcp-go/client"
+	"github.com/mark3labs/mcp-go/client/transport"
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
@@ -21,10 +23,13 @@ type MCPConfig struct {
 
 // MCPServer is the configuration for a single MCP server.
 type MCPServer struct {
-	Command string            `json:"command"`
-	URL     string            `json:"url"`
-	Args    []string          `json:"args"`
-	Env     map[string]string `json:"env"`
+	Type    string            `json:"type,omitempty"`
+	Command string            `json:"command,omitempty"`
+	URL     string            `json:"url,omitempty"`
+	Args    []string          `json:"args,omitempty"`
+	Env     map[string]string `json:"env,omitempty"`
+	Headers map[string]string `json:"headers,omitempty"`
+	Timeout int               `json:"timeout,omitempty"`
 }
 
 // MCPTool is a tool that uses the MCP protocol.
@@ -78,19 +83,27 @@ func GetMCPTools(configFile string, verbose bool) (map[string]types.Tool, map[st
 		for k, v := range server.Env {
 			envs = append(envs, fmt.Sprintf("%s=%s", k, v))
 		}
-		if server.Command != "" {
+		if server.Command != "" || server.Type == "stdio" {
 			c, err = client.NewStdioMCPClient(
 				server.Command,
 				envs,
 				server.Args...,
 			)
 			if err != nil {
-				return nil, nil, fmt.Errorf("failed to create client for %s: %v", name, err)
+				return nil, nil, fmt.Errorf("failed to create stdio client for %s: %v", name, err)
 			}
 		} else if server.URL != "" {
-			c, err = client.NewSSEMCPClient(server.URL)
-			if err != nil {
-				return nil, nil, fmt.Errorf("failed to create client for %s: %v", name, err)
+			// default to SSE if no type is specified
+			if server.Type == "" || server.Type == "sse" {
+				c, err = client.NewSSEMCPClient(server.URL, client.WithHeaders(server.Headers), transport.WithHTTPClient(&http.Client{Timeout: time.Duration(server.Timeout) * time.Second}))
+				if err != nil {
+					return nil, nil, fmt.Errorf("failed to create SSE client for %s: %v", name, err)
+				}
+			} else {
+				c, err = client.NewStreamableHttpClient(server.URL, transport.WithHTTPHeaders(server.Headers), transport.WithHTTPTimeout(time.Duration(server.Timeout)*time.Second))
+				if err != nil {
+					return nil, nil, fmt.Errorf("failed to create StreamableHttp client for %s: %v", name, err)
+				}
 			}
 		} else {
 			return nil, nil, fmt.Errorf("no command or URL specified for %s", name)
